@@ -23,7 +23,7 @@ class Salty:
         self.password = password
         self.session = None
         self.tournaments = []
-        self.games = {}
+        self.tournys = {}
         self.login()
 
     def login(self):
@@ -57,18 +57,14 @@ class Salty:
         for tournament in self.tournaments:
             print tournament
 
-    def addGameStats(self, id):
-        newGame = Game(self.session, id)
-        self.games[id] = newGame
+    def addTournamentStats(self, id):
+        newTourny = Tournament(self.session, id)
+        self.tournys[id] = newTourny
 
-    def printGameStats(self, id):
-        print self.games[id].stats
+    def printTournamentStats(self, id):
+        print self.tournys[id].stats
 
-    def printGamesList(self):
-        for game in self.games:
-            print game
-
-class Game:
+class Tournament:
     def __init__(self, session, id):
         self.id = id
         self.session = session
@@ -90,24 +86,34 @@ class Game:
                 nextButton = div.findAll("a", text="Next", attrs={"class":"graybutton"})
             else:
                 nextButton = []
-            tempStats.append(self.scrapeStats(soup))
+            tempStats += self.scrapeStats(soup)
             num += 1
-        return tempStats
+        self.stats = tempStats
 
     def scrapeStats(self, soup):
         rows = soup.findAll("tr")
-        gameStats = []
+        pageStats = []
         for i in xrange(len(rows)):
-            match = {}
-            match['id'] = rows[i][1].getText()
-            match['fighters'] = []
-            match['winner'] = ""
-            match['bets'] = []
-            match['start'] = ""
-            match['end'] = ""
-            print match
-            gameStats.push(match)
-        return "asd"
+            if (i != 0):
+                ele = rows[i].findAll("td")
+                print ele, "\n"
+                match = {}
+                url = ele[0].find("a")['href']
+                fightbets = ele[0].getText().split(",", 1)
+                fighter1 = fightbets[0].split("- $")[0]
+                fighter2 = fightbets[1].split("- $")[0]
+                bet1 = fightbets[0].split("- $")[1]
+                bet2 = fightbets[1].split("- $")[1]
+                match['id'] = url[(url.find("=")+1)::]
+                match['fighters'] = [fighter1, fighter2]
+                match['bets'] = [bet1, bet2]
+                match['start'] = ele[2].getText()
+                match['end'] = ele[3].getText()
+                match['betters'] = ele[4].getText()
+                if (ele[1].find("span")):
+                    match['winner'] = ele[1].find("span").getText()
+                    pageStats.append(match)
+        return pageStats
 
 if __name__ == '__main__':
     if len(sys.argv) < 3:
@@ -118,10 +124,5 @@ if __name__ == '__main__':
     #salty.setTournamentList()
     #salty.printTournamentList()
 
-    salty.addGameStats('80')
-    salty.printGamesList()
-    salty.printGameStats('80')
-
-
-    #a = something.get("http://www.saltybet.com/stats")
-    #print a.text
+    salty.addTournamentStats('81')
+    salty.printTournamentStats('81')
