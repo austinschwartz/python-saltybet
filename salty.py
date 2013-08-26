@@ -79,14 +79,24 @@ class Game:
         num = 1
         page = self.session.get("http://www.saltybet.com/stats?tournament_id=" + self.id)
         soup = BeautifulSoup(page.text)
-        print page.url
-        nextButton = soup.findAll(text="Next", attrs={"class":"graybutton"})
-        while nextButton[1] == "Next":
-            num+=1
-            page = self.session.get("http://www.saltybet.com/stats?tournament_id=" + self.id + "&page=" + str(num))
+        nextButton = [u'Next']
+        tempStats = []
+        while nextButton and nextButton[0] == "Next":
+            page = self.session.get("http://www.saltybet.com/stats?tournament_id=" + self.id + ("&page=" + str(num) if num != 1 else ""))
             soup = BeautifulSoup(page.text)
-            nextButton = [button.find(text="Next") for button in soup.findAll("a", {"class":"graybutton"})]
-            print page.url
+            divs = soup.findAll("div", attrs="right")
+            if divs:
+                div = divs[0]
+                nextButton = div.findAll("a", text="Next", attrs={"class":"graybutton"})
+            else:
+                nextButton = []
+            tempStats.append(self.scrapeStats(soup))
+            num += 1
+        return tempStats
+
+    def scrapeStats(self, soup):
+        row = soup.findAll("tr")
+        print row, "\n"
 
 if __name__ == '__main__':
     if len(sys.argv) < 3:
@@ -97,9 +107,9 @@ if __name__ == '__main__':
     #salty.setTournamentList()
     #salty.printTournamentList()
 
-    salty.addGameStats('82')
+    salty.addGameStats('80')
     salty.printGamesList()
-    salty.printGameStats('82')
+    salty.printGameStats('80')
 
 
     #a = something.get("http://www.saltybet.com/stats")
