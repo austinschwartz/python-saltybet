@@ -62,7 +62,7 @@ class Salty:
         self.games[id] = newGame
 
     def printGameStats(self, id):
-        print self.games[id]
+        print self.games[id].stats
 
     def printGamesList(self):
         for game in self.games:
@@ -95,8 +95,10 @@ class Game:
         return tempStats
 
     def scrapeStats(self, soup):
-        row = soup.findAll("tr")
-        print row, "\n"
+        rows = soup.findAll("tr")
+        for row in rows:
+            print row, "\n"
+        return "asd"
 
 if __name__ == '__main__':
     if len(sys.argv) < 3:
