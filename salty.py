@@ -96,8 +96,17 @@ class Game:
 
     def scrapeStats(self, soup):
         rows = soup.findAll("tr")
-        for row in rows:
-            print row, "\n"
+        gameStats = []
+        for i in xrange(len(rows)):
+            match = {}
+            match['id'] = rows[i][1].getText()
+            match['fighters'] = []
+            match['winner'] = ""
+            match['bets'] = []
+            match['start'] = ""
+            match['end'] = ""
+            print match
+            gameStats.push(match)
         return "asd"
 
 if __name__ == '__main__':
