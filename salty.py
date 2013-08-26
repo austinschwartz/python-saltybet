@@ -1,6 +1,5 @@
-import os, sys, urllib2, json, requests
+import sys, requests
 from BeautifulSoup import BeautifulSoup
-import re
 
 loginurl = "http://www.saltybet.com/authenticate?signin=1"
 
@@ -46,7 +45,7 @@ class Salty:
             x = rows[i].findAll("td")
             if (len(x) > 3):
                 indx = x[0].find("a")['href']
-                tourn['index'] = indx[indx.find('=')+1::]
+                tourn['id'] = indx[indx.find('=')+1::]
                 tourn['name'] = x[0].getText()
                 tourn['start'] = x[1].getText()
                 tourn['end'] = x[2].getText()
@@ -54,9 +53,40 @@ class Salty:
                 tournaments.append(tourn)
         self.tournaments = tournaments
 
-    class Game:
-        def __init__(self, id):
-            pass
+    def printTournamentList(self):
+        for tournament in self.tournaments:
+            print tournament
+
+    def addGameStats(self, id):
+        newGame = Game(self.session, id)
+        self.games[id] = newGame
+
+    def printGameStats(self, id):
+        print self.games[id]
+
+    def printGamesList(self):
+        for game in self.games:
+            print game
+
+class Game:
+    def __init__(self, session, id):
+        self.id = id
+        self.session = session
+        self.stats = []
+        self.getStats()
+
+    def getStats(self):
+        num = 1
+        page = self.session.get("http://www.saltybet.com/stats?tournament_id=" + self.id)
+        soup = BeautifulSoup(page.text)
+        print page.url
+        nextButton = soup.findAll(text="Next", attrs={"class":"graybutton"})
+        while nextButton[1] == "Next":
+            num+=1
+            page = self.session.get("http://www.saltybet.com/stats?tournament_id=" + self.id + "&page=" + str(num))
+            soup = BeautifulSoup(page.text)
+            nextButton = [button.find(text="Next") for button in soup.findAll("a", {"class":"graybutton"})]
+            print page.url
 
 if __name__ == '__main__':
     if len(sys.argv) < 3:
@@ -64,10 +94,13 @@ if __name__ == '__main__':
         quit()
 
     salty = Salty(sys.argv[1], sys.argv[2])
-    salty.setTournamentList()
+    #salty.setTournamentList()
+    #salty.printTournamentList()
 
-    for t in salty.tournaments:
-        print t
+    salty.addGameStats('82')
+    salty.printGamesList()
+    salty.printGameStats('82')
+
 
     #a = something.get("http://www.saltybet.com/stats")
     #print a.text
