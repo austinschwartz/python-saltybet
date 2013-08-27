@@ -1,4 +1,4 @@
-import sys, requests
+import sys, requests, io, json
 from BeautifulSoup import BeautifulSoup
 
 loginurl = "http://www.saltybet.com/authenticate?signin=1"
@@ -64,6 +64,12 @@ class Salty:
     def printTournamentStats(self, id):
         print self.tournys[id].stats
 
+    def saveTournamentStats(self):
+        tournyStats = {}
+        for key in self.tournys:
+            tournyStats[key] = self.tournys[key].stats
+        saveJSON("stats.json", tournyStats)
+
 class Tournament:
     def __init__(self, session, id):
         self.id = id
@@ -96,10 +102,17 @@ class Tournament:
         for i in xrange(len(rows)):
             if (i != 0):
                 ele = rows[i].findAll("td")
-                print ele, "\n"
                 match = {}
                 url = ele[0].find("a")['href']
-                fightbets = ele[0].getText().split(",", 1)
+                fightbets = ele[0].getText().split(",")
+                if len(fightbets) > 2:
+                    if ("$" in fightbets[0]):
+                        fightbetsa = fightbets[0]
+                        fightbetsb = fightbets[1] + "," + fightbets[2]
+                    else:
+                        fightbetsa = fightbets[0] + "," + fightbets[1]
+                        fightbetsb = fightbets[2]
+                    fightbets = [fightbetsa, fightbetsb]
                 fighter1 = fightbets[0].split("- $")[0]
                 fighter2 = fightbets[1].split("- $")[0]
                 bet1 = fightbets[0].split("- $")[1]
@@ -115,6 +128,10 @@ class Tournament:
                     pageStats.append(match)
         return pageStats
 
+def saveJSON(filename, contents):
+    with io.open(filename, 'w', encoding='utf-8') as f:
+        f.write(unicode(json.dumps(contents, ensure_ascii=False)))
+
 if __name__ == '__main__':
     if len(sys.argv) < 3:
         print "need args bro"
@@ -125,4 +142,5 @@ if __name__ == '__main__':
     #salty.printTournamentList()
 
     salty.addTournamentStats('81')
-    salty.printTournamentStats('81')
+    salty.addTournamentStats('82')
+    salty.saveTournamentStats()
