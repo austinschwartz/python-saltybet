@@ -138,8 +138,8 @@ if __name__ == '__main__':
         quit()
 
     salty = Salty(sys.argv[1], sys.argv[2])
-    #salty.setTournamentList()
-    #salty.printTournamentList()
+    salty.setTournamentList()
+    salty.printTournamentList()
 
     salty.addTournamentStats('81')
     salty.addTournamentStats('82')
