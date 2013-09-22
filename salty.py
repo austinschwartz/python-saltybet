@@ -58,10 +58,12 @@ class Salty:
             print tournament
 
     def addTournamentStats(self, id):
+        id = str(id)
         newTourny = Tournament(self.session, id)
         self.tournys[id] = newTourny
 
     def printTournamentStats(self, id):
+        id = str(id)
         print self.tournys[id].stats
 
     def saveTournamentStats(self):
@@ -72,7 +74,7 @@ class Salty:
 
 class Tournament:
     def __init__(self, session, id):
-        self.id = id
+        self.id = str(id)
         self.session = session
         self.stats = []
         self.getStats()
@@ -141,6 +143,6 @@ if __name__ == '__main__':
     salty.setTournamentList()
     salty.printTournamentList()
 
-    salty.addTournamentStats('81')
-    salty.addTournamentStats('82')
+    salty.addTournamentStats(81)
+    salty.printTournamentStats(81)
     salty.saveTournamentStats()
