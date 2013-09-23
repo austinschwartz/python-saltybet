@@ -133,16 +133,3 @@ class Tournament:
 def saveJSON(filename, contents):
     with io.open(filename, 'w', encoding='utf-8') as f:
         f.write(unicode(json.dumps(contents, ensure_ascii=False)))
-
-if __name__ == '__main__':
-    if len(sys.argv) < 3:
-        print "need args bro"
-        quit()
-
-    salty = Salty(sys.argv[1], sys.argv[2])
-    salty.setTournamentList()
-    salty.printTournamentList()
-
-    salty.addTournamentStats(81)
-    salty.printTournamentStats(81)
-    salty.saveTournamentStats()
